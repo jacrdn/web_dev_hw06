@@ -37,10 +37,6 @@ defmodule Hangman.GameServer do
     GenServer.call(reg(name), {:guess, name, gs})
   end
 
-  def room(name, rm) do
-    GenServer.call(reg(name), {:guess, name, rm})
-  end
-
   def peek(name) do
     GenServer.call(reg(name), {:peek, name})
   end
@@ -74,7 +70,7 @@ defmodule Hangman.GameServer do
     HangmanWeb.Endpoint.broadcast!(
       "game:1", # FIXME: Game name should be in state
       "view",
-      Game.view(game, "", ""))
+      Game.view(game, ""))
     {:noreply, game}
   end
 end

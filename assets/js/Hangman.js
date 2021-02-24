@@ -145,7 +145,6 @@ function reset() {
 
 function Setup() {
   const [name, setName] = useState("");
-  const [roomName, setRoom] = useState("");
 
   return (
     <div className="row">
@@ -154,20 +153,11 @@ function Setup() {
         <input type="text"
                value={name}
                onChange={(ev) => setName(ev.target.value)}
-               onKeyPress={(ev) => {if(ev.key == "Enter") {ch_login(name)
-                                                           ch_room({rm: roomName})}}} 
+               onKeyPress={(ev) => {if(ev.key == "Enter") {ch_login(name)}}} 
                />
       </div>
         <div className="column">
-        <label>Room</label>
-          <input type="text"
-                value={roomName}
-                onChange={(ev) => setRoom(ev.target.value)} 
-                />
-        </div>
-        <div className="column">
-          <button onClick={() => {ch_login(name)
-                                  ch_room({rm: roomName})}}>
+          <button onClick={() => {ch_login(name)}}>
             Join
           </button>
         </div>
@@ -196,7 +186,6 @@ function Hangman() {
 
     // guesses: [],
     name: "",
-    room: "",
     lastGuess: [],
     cows: 0,
     bulls: 0,
@@ -206,7 +195,7 @@ function Hangman() {
 
   });
 
-  let {guesses, lastGuess, cows, bulls, lives, name, room} = state;
+  let {guesses, lastGuess, cows, bulls, lives, name} = state;
 
   useEffect(() => {
     ch_join(setState);
@@ -251,11 +240,6 @@ function Hangman() {
         <div className="row">
           <div className="column">
             <p>name: {name}</p>
-          </div>
-        </div>
-        <div className="row">
-          <div className="column">
-            <p>room: {room}</p>
           </div>
         </div>
         <Controls reset={reset} guess={guess} />

@@ -29,16 +29,6 @@ defmodule HangmanWeb.GameChannel do
   end
 
   @impl true
-  def handle_in("room", %{"rm" => rm}, socket) do
-    user = socket.assigns[:user]
-    view = socket.assigns[:name]
-    |> GameServer.room(rm)
-    |> Game.view(user, rm)
-    broadcast(socket, "view", view)
-    {:reply, {:ok, view}, socket}
-  end
-
-  @impl true
   def handle_in("guess", %{"gs" => gs}, socket) do
     user = socket.assigns[:user]
     view = socket.assigns[:name]
@@ -48,14 +38,6 @@ defmodule HangmanWeb.GameChannel do
     {:reply, {:ok, view}, socket}
   end
 
-
-  # def handle_in("guess", %{"gs" => gs}, socket0) do
-  #   game0 = socket0.assigns[:game]
-  #   game1 = Game.guess(game0, gs)
-  #   socket1 = assign(socket0, :game, game1)
-  #   view = Game.view(game1)
-  #   {:reply, {:ok, view}, socket1}
-  # end
 
   @impl true
   def handle_in("reset", _, socket) do
