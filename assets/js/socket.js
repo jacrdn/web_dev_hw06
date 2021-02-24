@@ -6,7 +6,7 @@ let socket = new Socket(
   {params: {token: ""}}
 );
 socket.connect();
-
+// TODO + room
 let channel = socket.channel("game:1", {});
 
 let state = {
@@ -35,6 +35,14 @@ export function ch_join(cb) {
 
 export function ch_login(name) {
   channel.push("login", {name: name})
+         .receive("ok", state_update)
+         .receive("error", resp => {
+           console.log("Unable to login", resp)
+         });
+}
+
+export function ch_room(room) {
+  channel.push("room", room)
          .receive("ok", state_update)
          .receive("error", resp => {
            console.log("Unable to login", resp)

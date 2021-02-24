@@ -5,8 +5,8 @@ defmodule HangmanWeb.GameChannel do
   alias Hangman.GameServer
 
   @impl true
-  def join("game:" <> name, payload, socket) do
-    if authorized?(payload) do
+  def join("game:" <> name, _payload, socket) do
+    # if authorized?(payload) do
       GameServer.start(name)
       socket = socket
       |> assign(:name, name)
@@ -14,9 +14,9 @@ defmodule HangmanWeb.GameChannel do
       game = GameServer.peek(name)
       view = Game.view(game, "")
       {:ok, view, socket}
-    else
-      {:error, %{reason: "unauthorized"}}
-    end
+    # else
+    #   {:error, %{reason: "unauthorized"}}
+    # end
   end
 
   @impl true
@@ -25,6 +25,16 @@ defmodule HangmanWeb.GameChannel do
     view = socket.assigns[:name]
     |> GameServer.peek()
     |> Game.view(user)
+    {:reply, {:ok, view}, socket}
+  end
+
+  @impl true
+  def handle_in("room", %{"rm" => rm}, socket) do
+    user = socket.assigns[:user]
+    view = socket.assigns[:name]
+    |> GameServer.room(rm)
+    |> Game.view(user, rm)
+    broadcast(socket, "view", view)
     {:reply, {:ok, view}, socket}
   end
 
@@ -68,7 +78,7 @@ defmodule HangmanWeb.GameChannel do
   end
 
   # Add authorization logic here as required.
-  defp authorized?(_payload) do
-    true
-  end
+  # defp authorized?(_payload) do
+  #   true
+  # end
 end

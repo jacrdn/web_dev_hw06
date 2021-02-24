@@ -2,22 +2,50 @@ import React, { useState, useEffect } from 'react';
 import 'milligram';
 
 import { ch_join, ch_push,
-         ch_login, ch_reset } from './socket';
+         ch_login, ch_reset, ch_room } from './socket';
 
-// BASED FUNCTION ON NAT TUCKS LECTURE CODE
-function SetTitle({text}) {
-  useEffect(() => {
-    let orig = document.title;
-    document.title = text;
 
-    // Cleanup function
-    return () => {
-      document.title = orig;
-    };
-  });
 
-  return <div />;
-}
+/**
+ * 
+ * SHIT TO ADD:
+ * 
+ * LOGISTICS
+ * 
+ * game room feature
+ * 
+ * change login to set up, from there players can join the game. 
+ * toggle number of players 1-4
+ * once the number of players marked as players are ready we can start
+ * if the current body is not setup a player is automarked as an observer
+ * observers cant play
+ * players leave
+ * 
+ * 
+ * 
+ * PLAYER
+ * have a super smash like player system
+ * store state as p1, p2, p3, p4
+ * 
+ * STATE
+ * 
+ * have a map of player name to their individual states [
+ * name -> {bulls, cows, lives, currentGuess, prevGuesses, wins/losses, observer/orPlayer}]
+ * 
+ * 
+ * PASSING
+ * player can pass ->  not mutate for them and just have it 
+ * redisplay last state for them, with others updating?
+ * 
+ * 
+
+ * 
+ * 
+ * TIMER 
+ * want to make a Process.send_after for each game and make sure to start and restart it as needed
+ * 
+ * 
+ */
 
 // handles game losing 
 function GameOver(props) {
@@ -107,68 +135,44 @@ function Controls({guess, reset}) {
         </p>
       </div>
     </div>
-  );}
+  );
+}
 
 function reset() {
   console.log("Time to reset");
   ch_reset();
 }
-/** 
-function Play({state}) {
-  let {word, guesses, name} = state;
 
-  function guess(text) {
-    // Inner function isn't a render function
-    ch_push({letter: text});
-  }
-
-  let view = word.split('');
-  let bads = [];
-
-  // FIXME: Correct guesses shouldn't count.
-  let lives = 8 - guesses.length;
-
-  return (
-    <div>
-      <div className="row">
-        <div className="column">
-          <p>Word: {view.join(' ')}</p>
-        </div>
-        <div className="column">
-          <p>Name: {name}</p>
-        </div>
-      </div>
-      <div className="row">
-        <div className="column">
-          <p>Guesses: {guesses.join(' ')}</p>
-        </div>
-        <div className="column">
-          <p>Lives: {lives}</p>
-        </div>
-      </div>
-      <Controls reset={reset} guess={guess} />
-    </div>
-  );
-}
-*/
-
-function Login() {
+function Setup() {
   const [name, setName] = useState("");
+  const [roomName, setRoom] = useState("");
 
   return (
     <div className="row">
       <div className="column">
+      <label>Name</label>
         <input type="text"
                value={name}
-               onChange={(ev) => setName(ev.target.value)} />
+               onChange={(ev) => setName(ev.target.value)}
+               onKeyPress={(ev) => {if(ev.key == "Enter") {ch_login(name)
+                                                           ch_room({rm: roomName})}}} 
+               />
       </div>
-      <div className="column">
-        <button onClick={() => ch_login(name)}>
-          Login
-        </button>
-      </div>
+        <div className="column">
+        <label>Room</label>
+          <input type="text"
+                value={roomName}
+                onChange={(ev) => setRoom(ev.target.value)} 
+                />
+        </div>
+        <div className="column">
+          <button onClick={() => {ch_login(name)
+                                  ch_room({rm: roomName})}}>
+            Join
+          </button>
+        </div>
     </div>
-  );
+    );
 }
 
 function Hangman() {
@@ -192,15 +196,17 @@ function Hangman() {
 
     // guesses: [],
     name: "",
-    secret: "",
+    room: "",
     lastGuess: [],
     cows: 0,
     bulls: 0,
-    lives: 8
+    lives: 8,
     // bulls = 4 
+
+
   });
 
-  let {secret, guesses, lastGuess, cows, bulls, lives, name} = state;
+  let {guesses, lastGuess, cows, bulls, lives, name, room} = state;
 
   useEffect(() => {
     ch_join(setState);
@@ -216,13 +222,13 @@ function Hangman() {
 
   let body = null;
 
- if (name === "") {
-    body = <Login />;
+ if (state.name === "") {
+    body = <Setup />;
   }
-  else if (bulls == "4") {
+  else if (state.bulls == "4") {
     body = <YouWin reset={reset} />;
   }
-  else if (lives > 0) {
+  else if (state.lives > 0) {
     // BASED THIS ON NAT TUCKS LECTURE CODE
     body = (
       <div>
@@ -247,6 +253,11 @@ function Hangman() {
             <p>name: {name}</p>
           </div>
         </div>
+        <div className="row">
+          <div className="column">
+            <p>room: {room}</p>
+          </div>
+        </div>
         <Controls reset={reset} guess={guess} />
       </div>
     )
@@ -260,24 +271,6 @@ function Hangman() {
       {body}
     </div>
   );
-
-
-  // if (state.name === "") {
-  //   body = <Login />;
-  // }
-  // // FIXME: Correct guesses shouldn't count.
-  // else if (lives > 0) {
-  //   body = <Play state={state} />;
-  // }
-  // else {
-  //   body = <GameOver reset={reset} />;
-  // }
-
-  // return (
-  //   <div className="container">
-  //     {body}
-  //   </div>
-  // );
 }
 
 export default Hangman;

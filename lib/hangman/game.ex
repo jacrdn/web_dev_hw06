@@ -2,34 +2,39 @@ defmodule Hangman.Game do
   # This module doesn't do stuff,
   # it computes stuff.
 
-  def new do
+  def new() do
     %{
         secret: random_secret(),
         lastGuess: [],
         bulls: 0,
         cows: 0,
         lives: 8,
+        room: "",
+        name: "",
       }
   end
 
 
     def guess(st, gs) do
-    if(valid(gs)) do
+    # if(valid(gs)) do
       %{ st | lastGuess: gs,
         lives: st.lives - 1,
         bulls: getBulls(gs, st.secret),
         cows: getCows(gs, st.secret),
+        name: st.name,
+        room: st.room,
       }
-    else
-      %{lastGuess: st.lastGuess,
-      lives: st.lives,
-      bulls: st.bulls,
-      cows: st.cows,
-    }
-    end
+    # else
+    #   %{lastGuess: st.lastGuess,
+    #   lives: st.lives,
+    #   bulls: st.bulls,
+    #   cows: st.cows,
+    #   name: st.name,
+    #   room: st.room,
+    # }
+    # end
   end
-
-    def view(st, name) do
+    def view(st, name, room) do
     # bnc = bullsAndCows(st.lastGuess, st.code)
     %{
 
@@ -38,6 +43,20 @@ defmodule Hangman.Game do
       lastGuess: st.lastGuess,
       lives: st.lives,
       name: name,
+      room: room,
+    }
+  end
+
+  def view(st, name) do
+    # bnc = bullsAndCows(st.lastGuess, st.code)
+    %{
+
+      bulls: st.bulls,
+      cows: st.cows,
+      lastGuess: st.lastGuess,
+      lives: st.lives,
+      name: name,
+      room: st.room,
     }
   end
 
@@ -51,15 +70,15 @@ defmodule Hangman.Game do
     Integer.to_string(u1) <> Integer.to_string(u2) <> Integer.to_string(u3) <> Integer.to_string(u4)
   end
 
-     def valid(g) do
-    set_g_size = g
-                |> String.codepoints
-                |> Enum.chunk(1)
-                |> Enum.map(&Enum.join/1)
-                |> MapSet.new()
-                |> MapSet.size()
-    String.length(g) == 4 and set_g_size == 4
-  end
+  #    def valid(g) do
+  #   set_g_size = g
+  #               |> String.codepoints
+  #               |> Enum.chunk(1)
+  #               |> Enum.map(&Enum.join/1)
+  #               |> MapSet.new()
+  #               |> MapSet.size()
+  #   String.length(g) == 4 and set_g_size == 4
+  # end
 
 
   def indexOf(l, el) do
